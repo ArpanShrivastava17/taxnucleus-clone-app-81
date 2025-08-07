@@ -1,6 +1,6 @@
 
 import { Card } from './ui/Card';
-import { Progress } from './ui/Progress';
+import Progress from './ui/Progress';
 
 const DashboardOverview = () => {
   const stats = [
