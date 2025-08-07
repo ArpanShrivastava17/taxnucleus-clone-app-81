@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Label from '../components/ui/Label';
@@ -8,18 +9,27 @@ import Label from '../components/ui/Label';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the return URL or default based on role
+  const from = location.state?.from?.pathname || null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setError('');
     
-    // Simulate login process
-    setTimeout(() => {
-      setLoading(false);
-      navigate('/dashboard');
-    }, 1000);
+    const result = await login(email, password);
+    
+    if (result.success) {
+      // Redirect to the intended page or role-based dashboard
+      const redirectTo = from || (result.user.role === 'client' ? '/client/dashboard' : '/ca/dashboard');
+      navigate(redirectTo, { replace: true });
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
@@ -41,6 +51,18 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
+            {error && (
+              <div className="error-message">
+                {error}
+              </div>
+            )}
+            
+            <div className="demo-credentials">
+              <p><strong>Demo Credentials:</strong></p>
+              <p>Client: client@example.com / password</p>
+              <p>CA: ca@example.com / password</p>
+            </div>
+
             <div className="form-group">
               <Label htmlFor="email">Email</Label>
               <Input

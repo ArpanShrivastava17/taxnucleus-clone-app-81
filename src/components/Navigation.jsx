@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Button from './ui/Button';
 import { ChevronDown, FileText, Users, Settings, BookOpen } from 'lucide-react';
 
 const Navigation = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
 
   const productItems = [
     { name: 'Tax Portal', href: '/product/tax-portal', icon: FileText },
@@ -195,18 +197,37 @@ const Navigation = () => {
 
           {/* Auth Buttons */}
           <div style={authButtonsStyle}>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/login')}
-            >
-              LOG IN
-            </Button>
-            <Button 
-              variant="hero"
-              onClick={() => navigate('/signup')}
-            >
-              DEMO
-            </Button>
+            {isAuthenticated() ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => navigate(user.role === 'client' ? '/client/dashboard' : '/ca/dashboard')}
+                >
+                  DASHBOARD
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={logout}
+                >
+                  LOGOUT
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => navigate('/login')}
+                >
+                  LOG IN
+                </Button>
+                <Button 
+                  variant="hero"
+                  onClick={() => navigate('/signup')}
+                >
+                  DEMO
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
